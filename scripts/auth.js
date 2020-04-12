@@ -1,3 +1,10 @@
+//get data
+db.collection("guides")
+  .get()
+  .then((snapshot) => {
+    setupGuides(snapshot.docs);
+  });
+
 //listen for auth status changes
 auth.onAuthStateChanged((user) => {
   if (user) {
@@ -6,6 +13,7 @@ auth.onAuthStateChanged((user) => {
     console.log("user logged out");
   }
 });
+
 //SIGNUP
 const signupForm = document.querySelector("#signup-form");
 signupForm.addEventListener("submit", (e) => {
