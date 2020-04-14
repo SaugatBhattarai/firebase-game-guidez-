@@ -1,13 +1,17 @@
 //listen for auth status changes
 auth.onAuthStateChanged((user) => {
+  // console.log(user);
   if (user) {
     //get data
-    db.collection("guides")
-      .get()
-      .then((snapshot) => {
+    db.collection("guides").onSnapshot(
+      (snapshot) => {
         setupGuides(snapshot.docs);
         setupUI(user);
-      });
+      },
+      (err) => {
+        console.log(err.message);
+      }
+    );
   } else {
     setupUI();
     setupGuides([]);
@@ -47,12 +51,19 @@ signupForm.addEventListener("submit", (e) => {
 
   //sign up the user
   //Note: this is async task it might take some time to complete
-  auth.createUserWithEmailAndPassword(email, password).then((cred) => {
-    // console.log(cred.user);
-    const modal = document.querySelector("#modal-signup");
-    M.Modal.getInstance(modal).close();
-    signupForm.reset();
-  });
+  auth
+    .createUserWithEmailAndPassword(email, password)
+    .then((cred) => {
+      return db.collection("users").doc(cred.user.uid).set({
+        bio: signupForm["signup-bio"].value,
+      });
+    })
+    .then(() => {
+      // console.log(cred.user);
+      const modal = document.querySelector("#modal-signup");
+      M.Modal.getInstance(modal).close();
+      signupForm.reset();
+    });
 });
 
 //LOGOUT
