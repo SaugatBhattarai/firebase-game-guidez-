@@ -6,10 +6,32 @@ auth.onAuthStateChanged((user) => {
       .get()
       .then((snapshot) => {
         setupGuides(snapshot.docs);
+        setupUI(user);
       });
   } else {
+    setupUI();
     setupGuides([]);
   }
+});
+
+//create new guide
+const createForm = document.querySelector("#create-form");
+createForm.addEventListener("submit", (e) => {
+  e.preventDefault();
+
+  db.collection("guides")
+    .add({
+      title: createForm["title"].value,
+      content: createForm["content"].value,
+    })
+    .then(() => {
+      const modal = document.querySelector("#modal-create");
+      M.Modal.getInstance(modal).close();
+      createForm.reset();
+    })
+    .catch((err) => {
+      console.log(err.message);
+    });
 });
 
 //SIGNUP
@@ -37,10 +59,10 @@ signupForm.addEventListener("submit", (e) => {
 const logout = document.querySelector("#logout");
 logout.addEventListener("click", (e) => {
   e.preventDefault();
-  auth.signOut();
-  // auth.signOut().then(() => {
-  //   // console.log("User has signed out.");
-  // });
+  // auth.signOut();
+  auth.signOut().then(() => {
+    console.log("User has signed out.");
+  });
 });
 
 //LOGIN
